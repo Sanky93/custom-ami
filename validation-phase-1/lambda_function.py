@@ -1,5 +1,6 @@
 import os
 import boto3
+import subprocess
 import uuid
 
 from python_terraform import *
@@ -32,6 +33,8 @@ def lambda_handler(event, context):
     print(account_id)
         
     # os.system('cp /var/task/{*.tf,lambda_function.py} /tmp/')
+
+    subprocess.call('rm -rf /tmp/*', shell = True)
     
     s3 = boto3.resource('s3')
     s3Client = boto3.client('s3')
@@ -56,7 +59,7 @@ def lambda_handler(event, context):
     subscribe_to_event(template_arn, account_id)
     
     # creating trigger for validation phase 2 lambda 
-    trigger_lambda(account_id)
+    # trigger_lambda(account_id)
     
     # Running assessment template and tagging template
     start_assessment_run(template_arn, ssmValue)
@@ -79,7 +82,14 @@ def execute(region,ami_id):
         tf = Terraform(working_dir="/tmp/",terraform_bin_path='/opt/python/lib/python3.8/site-packages/terraform',variables={"region": region, "AMI_ID": ami_id})
         tf.init()
         approve = {"auto-approve": True}
-        tf.apply(capture_output=True, skip_plan=True, **approve)
+        (ret, out, err) = tf.apply(capture_output=True, skip_plan=True, **approve)
+        while ret != 0:
+            tf.destroy(capture_output=True, **approve)
+            subprocess.call('rm -rf /tmp/terraform*.sh', shell = True)
+            tf = Terraform(working_dir="/tmp/",terraform_bin_path='/opt/python/lib/python3.8/site-packages/terraform',variables={"region": region, "AMI_ID": ami_id})
+            tf.init()
+            approve = {"auto-approve": True}
+            (ret, out, err) = tf.apply(capture_output=True, skip_plan=True, **approve)
         stdout=tf.output()
         return stdout
     

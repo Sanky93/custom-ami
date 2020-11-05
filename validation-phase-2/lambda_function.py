@@ -119,7 +119,7 @@ def lambda_handler(event, context):
 
         else:
             # Creating trigger for initiating distribution phase
-            trigger_lambda()
+            # trigger_lambda()
             
             # Getting SSM value
             ssmValue = ssm_name(template_arn)
@@ -238,7 +238,9 @@ def trigger_lambda():
 
 # Deleting resources created for assessment run
 def delete_resources(AMI_id, targetArn):
-    # Extracting Instance details
+        instance_id = ''
+        sg_name = ''    
+        # Extracting Instance details
         instance_details = ec2_client.describe_instances(Filters=[
             {
                 'Name': 'image-id',

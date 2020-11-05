@@ -59,7 +59,7 @@ def lambda_handler(event, context):
                 update_ssm_parameter(updateSSMID, newAmi)
                 
                 # creating trigger for validation phase 1 lambda
-                trigger_lambda()
+                # trigger_lambda()
 
             print('Exiting Lambda')
             return {

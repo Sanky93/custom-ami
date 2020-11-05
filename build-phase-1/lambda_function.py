@@ -28,7 +28,7 @@ def lambda_handler(event, context):
     print(ssmValue)
     
     # creating trigger to initiate build phase 2 lambda
-    s3_trigger()
+    # s3_trigger()
     
     # downloading files from s3 bucket
     download_file(BUCKET_NAME, ssmValue)
